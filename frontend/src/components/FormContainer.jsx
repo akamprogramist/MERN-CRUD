@@ -1,46 +1,76 @@
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import { useState, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { setItems } from "../slices/apiSlice";
+import { useState } from "react";
+import { useDispatch } from "react-redux";
+
+// import { useGetAllProductQuery } from "../slices/dummy";
+import {
+  useGetAllItemsQuery,
+  useAddItemMutation,
+  useDeleteItemMutation,
+} from "../slices/ItemSlice";
 
 const ItemList = () => {
+  const { data: items } = useGetAllItemsQuery();
+
+  const [deleteItem] = useDeleteItemMutation();
+
+  const [todo, setTodo] = useState("");
+
   const dispatch = useDispatch();
-  const items = useSelector((state) => state.items.items);
-  const status = useSelector((state) => state.items.status);
 
-  useEffect(() => {
-    const fetchItems = async () => {
-      dispatch(setStatus("loading"));
-      try {
-        const response = await fetch("/api/items");
-        const data = await response.json();
-        dispatch(setItems(data));
-        dispatch(setStatus("succeeded"));
-      } catch (err) {
-        dispatch(setError(err.message));
-        dispatch(setStatus("failed"));
-      }
-    };
+  const [addItem] = useAddItemMutation();
 
-    fetchItems();
-  }, [dispatch]);
+  // const { data } = useGetAllProductQuery();
 
-  if (status === "loading") return <div>Loading...</div>;
-  if (status === "failed") return <div>Error loading items</div>;
+  const handleAddProduct = async () => {
+    try {
+      const res = await addItem({ todo }).unwrap();
+      dispatch({ ...res });
+      setTodo("");
+    } catch (err) {
+      console.error("Error adding new product:", err);
+    }
+  };
+
+  const handleDeleteItem = async (ItemId) => {
+    try {
+      await deleteItem(ItemId).unwrap();
+    } catch (err) {
+      console.error("Error delete product:", err);
+    }
+  };
 
   return (
-    <Form>
+    <Form onSubmit={handleAddProduct}>
       <Form.Group className="mb-3" controlId="item">
         <Form.Label>Create Item</Form.Label>
-        <Form.Control type="Item" placeholder="Enter Item" />
+        <Form.Control
+          type="Item"
+          placeholder="Enter Todo"
+          value={todo}
+          onChange={(e) => setTodo(e.target.value)}
+        />
       </Form.Group>
 
       <Button variant="primary" type="submit">
         Submit
       </Button>
       <Form.Group className="mt-5" controlId="formBasicCheckbox">
-        <Form.Check type="checkbox" label={`${item.todo}`} />
+        {/* <div>
+          {data?.products.map((p) => (
+            <h1 key={p.id}>{p.title}</h1>
+          ))}
+        </div> */}
+        {items?.map((p) => (
+          <div className="d-flex" key={p._id}>
+            <Button variant="success">update</Button>
+            <Button variant="danger" onClick={() => handleDeleteItem(p._id)}>
+              delete
+            </Button>
+            <h1>{p.todo}</h1>
+          </div>
+        ))}
       </Form.Group>
     </Form>
   );

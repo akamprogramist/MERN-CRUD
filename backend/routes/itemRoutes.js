@@ -10,7 +10,7 @@ import {
 
 router.get("/items", allItems);
 router.post("/items", addItem);
-router.post("/items/:id", deleteItem);
+router.delete("/items/:id", deleteItem);
 router.get("/items/:id", getItem);
 router.put("/items/:id", UpdateItem);
 

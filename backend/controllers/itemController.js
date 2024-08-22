@@ -47,7 +47,6 @@ const deleteItem = asyncHandler(async (req, res) => {
   }
 });
 
-
 // Update Item
 // route Put /update:id
 const UpdateItem = asyncHandler(async (req, res) => {

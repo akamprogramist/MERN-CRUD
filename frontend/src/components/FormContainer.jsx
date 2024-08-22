@@ -2,7 +2,7 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-
+import { LinkContainer } from "react-router-bootstrap";
 // import { useGetAllProductQuery } from "../slices/dummy";
 import {
   useGetAllItemsQuery,
@@ -11,14 +11,12 @@ import {
 } from "../slices/ItemSlice";
 
 const ItemList = () => {
-  const { data: items } = useGetAllItemsQuery();
-
+  const { data: items, refetch } = useGetAllItemsQuery();
   const [deleteItem] = useDeleteItemMutation();
 
   const [todo, setTodo] = useState("");
 
   const dispatch = useDispatch();
-
   const [addItem] = useAddItemMutation();
 
   // const { data } = useGetAllProductQuery();
@@ -26,8 +24,9 @@ const ItemList = () => {
   const handleAddProduct = async () => {
     try {
       const res = await addItem({ todo }).unwrap();
-      dispatch({ ...res });
-      setTodo("");
+      dispatch({ type: "item/addSuccess", payload: res }); // Dispatch the appropriate action
+      setTodo(""); // Clear the form field
+      refetch();
     } catch (err) {
       console.error("Error adding new product:", err);
     }
@@ -36,24 +35,25 @@ const ItemList = () => {
   const handleDeleteItem = async (ItemId) => {
     try {
       await deleteItem(ItemId).unwrap();
+      refetch();
     } catch (err) {
       console.error("Error delete product:", err);
     }
   };
 
   return (
-    <Form onSubmit={handleAddProduct}>
+    <Form>
       <Form.Group className="mb-3" controlId="item">
         <Form.Label>Create Item</Form.Label>
         <Form.Control
-          type="Item"
+          type="text"
           placeholder="Enter Todo"
-          value={todo}
+          value={todo || ""}
           onChange={(e) => setTodo(e.target.value)}
         />
       </Form.Group>
 
-      <Button variant="primary" type="submit">
+      <Button variant="primary" onClick={handleAddProduct}>
         Submit
       </Button>
       <Form.Group className="mt-5" controlId="formBasicCheckbox">
@@ -64,7 +64,9 @@ const ItemList = () => {
         </div> */}
         {items?.map((p) => (
           <div className="d-flex" key={p._id}>
-            <Button variant="success">update</Button>
+            <LinkContainer to={`/items/${p._id}`}>
+              <Button>update</Button>
+            </LinkContainer>
             <Button variant="danger" onClick={() => handleDeleteItem(p._id)}>
               delete
             </Button>

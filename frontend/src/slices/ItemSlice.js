@@ -22,6 +22,16 @@ export const itemsApi = createApi({
       }),
       invalidatesTags: ["Items"],
     }),
+    getSingleItem: builder.query({
+      query: (id) => `/items/${id}`,
+    }),
+    updateItem: builder.mutation({
+      query: ({ id, updatedItem }) => ({
+        url: `/items/${id}`,
+        method: "PUT",
+        body: updatedItem,
+      }),
+    }),
   }),
 });
 
@@ -29,4 +39,6 @@ export const {
   useGetAllItemsQuery,
   useAddItemMutation,
   useDeleteItemMutation,
+  useUpdateItemMutation,
+  useGetSingleItemQuery,
 } = itemsApi;

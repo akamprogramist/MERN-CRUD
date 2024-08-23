@@ -1,44 +1,49 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-const ITEMS_URL = "http://localhost:5000";
-export const itemsApi = createApi({
-  baseQuery: fetchBaseQuery({ baseUrl: ITEMS_URL }),
-  tagTypes: ["Item"],
-  endpoints: (builder) => ({
-    // get all items
-    getAllItems: builder.query({
-      query: () => "/items",
-    }),
-    addItem: builder.mutation({
-      query: (data) => ({
-        url: `/items`,
-        method: "POST",
-        body: data,
-      }),
-    }),
-    deleteItem: builder.mutation({
-      query: (id) => ({
-        url: `/items/${id}`,
-        method: "DELETE",
-      }),
-      invalidatesTags: ["Items"],
-    }),
-    getSingleItem: builder.query({
-      query: (id) => `/items/${id}`,
-    }),
-    updateItem: builder.mutation({
-      query: ({ id, updatedItem }) => ({
-        url: `/items/${id}`,
-        method: "PUT",
-        body: updatedItem,
-      }),
-    }),
-  }),
-});
-
-export const {
+import { createSlice } from "@reduxjs/toolkit";
+import {
   useGetAllItemsQuery,
   useAddItemMutation,
   useDeleteItemMutation,
   useUpdateItemMutation,
-  useGetSingleItemQuery,
-} = itemsApi;
+} from "../slices/ItemApi";
+
+const initialState = {
+  items: [],
+  status: "idle",
+  error: null,
+};
+
+const itemSlice = createSlice({
+  name: "items",
+  initialState,
+  reducers: {
+    // Additional local reducers if needed
+  },
+  extraReducers: (builder) => {
+    // Handle the fetch all items action
+    builder
+      .addMatcher(useGetAllItemsQuery.matchFulfilled, (state, action) => {
+        state.items = action.payload;
+        state.status = "succeeded";
+      })
+      .addMatcher(useAddItemMutation.matchFulfilled, (state, action) => {
+        state.items.push(action.payload);
+      })
+      .addMatcher(useDeleteItemMutation.matchFulfilled, (state, action) => {
+        state.items = state.items.filter((item) => item.id !== action.meta.arg);
+      })
+      .addMatcher(useUpdateItemMutation.matchFulfilled, (state, action) => {
+        const index = state.items.findIndex(
+          (item) => item.id === action.payload.id
+        );
+        if (index !== -1) {
+          state.items[index] = action.payload;
+        }
+      })
+      .addMatcher(useGetAllItemsQuery.matchRejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message;
+      });
+  },
+});
+
+export default itemSlice.reducer;

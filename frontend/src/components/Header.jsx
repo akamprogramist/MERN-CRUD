@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import {
   useGetSingleItemQuery,
   useUpdateItemMutation,
-} from "../slices/ItemSlice";
+} from "../slices/ItemApi";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";

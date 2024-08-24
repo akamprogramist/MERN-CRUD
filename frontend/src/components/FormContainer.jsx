@@ -13,7 +13,7 @@ const ItemList = () => {
   const { data: items } = useGetAllItemsQuery();
   const [deleteItem] = useDeleteItemMutation();
   const [todo, setTodo] = useState("");
-
+  console.log(data);
   const dispatch = useDispatch();
   const [addItem] = useAddItemMutation();
 

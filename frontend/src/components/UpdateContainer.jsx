@@ -9,10 +9,10 @@ import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
-const Header = () => {
+const UpdateContainer = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const { data: items, refetch } = useGetSingleItemQuery(id);
+  const { data: items } = useGetSingleItemQuery(id);
   const [UpdateItem] = useUpdateItemMutation();
   const [todo, setTodo] = useState("");
   const dispatch = useDispatch();
@@ -23,19 +23,18 @@ const Header = () => {
   }, [items]);
 
   const handleUpdateItem = async (event) => {
-    event.preventDefault(); // Prevent default form submission
+    event.preventDefault();
     try {
       const res = await UpdateItem({ id, updatedItem: { todo } }).unwrap();
-      await refetch();
-      dispatch({ type: "item/updateSuccess", payload: res }); // Replace with appropriate action
-      setTodo(""); // Clear the form field
+      dispatch({ type: "item/updateSuccess", ...res }); // to remove the type error
+      setTodo("");
       navigate("/");
     } catch (err) {
       console.error("Error updating product:", err);
     }
   };
   return (
-    <Form>
+    <Form onSubmit={handleUpdateItem}>
       <Form.Group className="mb-3" controlId="item">
         <Form.Label>Update Item</Form.Label>
         <Form.Control
@@ -46,11 +45,11 @@ const Header = () => {
         />
       </Form.Group>
 
-      <Button variant="primary" onClick={handleUpdateItem}>
+      <Button variant="primary" type="submit">
         Submit
       </Button>
     </Form>
   );
 };
 
-export default Header;
+export default UpdateContainer;

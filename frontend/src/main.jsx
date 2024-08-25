@@ -12,13 +12,13 @@ import { Provider } from "react-redux";
 import store from "./store.js";
 import App from "./App.jsx";
 import HomeScreen from "./screens/HomeScreen.jsx";
-import Header from "./components/Header.jsx";
+import UpdateContainer from "./components/UpdateContainer.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<App />}>
       <Route index={true} path="/" element={<HomeScreen />} />
-      <Route path="/items/:id" element={<Header />} />
+      <Route path="/items/:id" element={<UpdateContainer />} />
     </Route>
   )
 );

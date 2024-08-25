@@ -10,18 +10,16 @@ import {
 } from "../slices/ItemApi";
 
 const ItemList = () => {
-  const { data: items } = useGetAllItemsQuery();
+  const { data } = useGetAllItemsQuery();
   const [deleteItem] = useDeleteItemMutation();
   const [todo, setTodo] = useState("");
-  console.log(data);
   const dispatch = useDispatch();
   const [addItem] = useAddItemMutation();
 
   const handleAddItem = async () => {
     try {
       const res = await addItem({ todo }).unwrap();
-      dispatch({ type: "items/addSuccess", payload: res }); // Ensure this matches your slice actions
-      setTodo(""); // Clear the form field
+      dispatch({ ...res });
     } catch (err) {
       console.error("Error adding new item:", err);
     }
@@ -36,7 +34,7 @@ const ItemList = () => {
   };
 
   return (
-    <Form>
+    <Form onSubmit={handleAddItem}>
       <Form.Group className="mb-3" controlId="item">
         <Form.Label>Create Item</Form.Label>
         <Form.Control
@@ -47,12 +45,12 @@ const ItemList = () => {
         />
       </Form.Group>
 
-      <Button variant="primary" onClick={handleAddItem}>
+      <Button variant="primary" type="submit">
         Submit
       </Button>
 
       <Form.Group className="mt-5" controlId="formBasicCheckbox">
-        {items?.map((p) => (
+        {data?.map((p) => (
           <div className="d-flex" key={p._id}>
             <LinkContainer to={`/items/${p._id}`}>
               <Button>Update</Button>

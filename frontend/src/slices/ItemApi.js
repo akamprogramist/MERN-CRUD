@@ -4,10 +4,12 @@ export const itemsApi = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: ITEMS_URL }),
   // name for reducer default is api
   reducerPath: "items",
+  tagTypes: ["Items"],
   endpoints: (builder) => ({
     // get all items
     getAllItems: builder.query({
       query: () => "/items",
+      providesTags: ["Items"],
     }),
     addItem: builder.mutation({
       query: (data) => ({
@@ -15,6 +17,7 @@ export const itemsApi = createApi({
         method: "POST",
         body: data,
       }),
+      invalidatesTags: ["Items"],
     }),
     deleteItem: builder.mutation({
       query: (id) => ({
@@ -25,6 +28,7 @@ export const itemsApi = createApi({
     }),
     getSingleItem: builder.query({
       query: (id) => `/items/${id}`,
+      providesTags: (result, error, id) => [{ type: "Items", id }],
     }),
     updateItem: builder.mutation({
       query: ({ id, updatedItem }) => ({
@@ -32,6 +36,7 @@ export const itemsApi = createApi({
         method: "PUT",
         body: updatedItem,
       }),
+      invalidatesTags: ["Items"],
     }),
   }),
 });
